@@ -1,0 +1,39 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="shell">
+  <div class="page-head">
+    <h1>Customers</h1>
+    <a class="button" href="/customers/create">Create Customer</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Type</th>
+        <th>Discount Rate</th>
+        <th>Address</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% customers.forEach((customer) => { %>
+        <tr>
+          <td><%= customer.name %></td>
+          <td><%= customer.email %></td>
+          <td><%= customer.customerType %></td>
+          <td><%= (customer.getDiscountRate() * 100).toFixed(0) %>%</td>
+          <td><%= customer.address %></td>
+          <td class="actions">
+            <a class="button button-secondary" href="/customers/<%= customer.id %>/edit">Edit</a>
+            <form action="/customers/<%= customer.id %>/delete" method="POST">
+              <button type="submit" class="button button-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</main>
+
+<%- include('../partials/footer') %>

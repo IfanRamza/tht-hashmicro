@@ -1,0 +1,36 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="shell">
+  <div class="page-head">
+    <h1>Orders</h1>
+    <a class="button" href="/orders/create">Create Order</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Customer</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach((order) => { %>
+        <tr>
+          <td><a href="/orders/<%= order.id %>"><%= order.code %></a></td>
+          <td><%= order.customer.name %></td>
+          <td><%= order.status %></td>
+          <td>Rp <%= order.getGrandTotal().toLocaleString('id-ID') %></td>
+          <td class="actions">
+            <form action="/orders/<%= order.id %>/delete" method="POST">
+              <button type="submit" class="button button-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</main>
+
+<%- include('../partials/footer') %>

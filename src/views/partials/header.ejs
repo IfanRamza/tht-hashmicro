@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> | HashMicro Test</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">HashMicro Test</a>
+    <% if (isAuthenticated) { %>
+      <nav>
+        <a href="/products">Products</a>
+        <a href="/customers">Customers</a>
+        <a href="/orders">Orders</a>
+        <a href="/character-checker">Character Checker</a>
+        <form action="/logout" method="POST">
+          <button type="submit">Logout</button>
+        </form>
+      </nav>
+    <% } %>
+  </header>

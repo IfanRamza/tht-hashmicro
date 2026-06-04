@@ -1,0 +1,53 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="shell">
+  <div class="page-head">
+    <h1><%= order.code %></h1>
+    <a class="button" href="/orders">Back</a>
+  </div>
+
+  <section class="panel">
+    <p><strong>Customer:</strong> <%= order.customer.name %></p>
+    <p><strong>Status:</strong> <%= order.status %></p>
+    <p><strong>Date:</strong> <%= order.transactionDate.toLocaleString('id-ID') %></p>
+  </section>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Qty</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% order.items.forEach((item) => { %>
+        <tr>
+          <td><%= item.product.name %></td>
+          <td><%= item.product.category %></td>
+          <td><%= item.quantity %></td>
+          <td>Rp <%= item.getSubtotal().toLocaleString('id-ID') %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <section class="totals">
+    <p><span>Subtotal</span><strong>Rp <%= order.getSubtotal().toLocaleString('id-ID') %></strong></p>
+    <p>
+      <span>Discount (<%= (order.getDiscountRate() * 100).toFixed(0) %>%)</span>
+      <strong class="text-danger">- Rp <%= order.getDiscount().toLocaleString('id-ID') %></strong>
+    </p>
+    <hr class="totals-divider">
+    <p><span>Taxable Amount</span><strong>Rp <%= order.getTaxableAmount().toLocaleString('id-ID') %></strong></p>
+    <p>
+      <span>Tax (11%)</span>
+      <strong>Rp <%= order.getTax().toLocaleString('id-ID') %></strong>
+    </p>
+    <hr class="totals-divider">
+    <p><span>Grand Total</span><strong>Rp <%= order.getGrandTotal().toLocaleString('id-ID') %></strong></p>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,33 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="shell">
+  <h1><%= title %></h1>
+  <form action="<%= action %>" method="POST" class="form panel">
+    <label>
+      Name
+      <input name="name" value="<%= product?.name ?? '' %>" required>
+    </label>
+    <label>
+      Category
+      <select name="category" required>
+        <% categories.forEach((category) => { %>
+          <option value="<%= category %>" <%= product?.category === category ? 'selected' : '' %>><%= category %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>
+      Price
+      <input name="price" type="number" min="0" value="<%= product?.price ?? 0 %>" required>
+    </label>
+    <label>
+      Stock
+      <input name="stock" type="number" min="0" value="<%= product?.stock ?? 0 %>" required>
+    </label>
+    <div class="actions">
+      <button type="submit">Save</button>
+      <a href="/products">Cancel</a>
+    </div>
+  </form>
+</main>
+
+<%- include('../partials/footer') %>

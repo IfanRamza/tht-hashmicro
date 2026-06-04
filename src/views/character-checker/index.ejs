@@ -1,0 +1,34 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="shell">
+  <h1>Character Checker</h1>
+  <form action="/character-checker" method="POST" class="form panel">
+    <p class="helper-text">Note: spaces are counted as characters in the calculation.</p>
+    <label>
+      Input 1
+      <input name="input1" value="<%= form.input1 %>" required>
+    </label>
+    <label>
+      Input 2
+      <input name="input2" value="<%= form.input2 %>" required>
+    </label>
+    <label>
+      Mode
+      <select name="mode">
+        <option value="sensitive" <%= form.mode === 'sensitive' ? 'selected' : '' %>>case sensitive</option>
+        <option value="insensitive" <%= form.mode === 'insensitive' ? 'selected' : '' %>>non case sensitive</option>
+      </select>
+    </label>
+    <button type="submit">Calculate</button>
+  </form>
+
+  <% if (result) { %>
+    <section class="panel result">
+      <p><strong>Matched:</strong> <%= result.matchedCount %> / <%= result.totalCharacters %></p>
+      <p><strong>Characters:</strong> <%= result.matchedCharacters.join(', ') || '-' %></p>
+      <p><strong>Percentage:</strong> <%= result.percentage.toFixed(2) %>%</p>
+    </section>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

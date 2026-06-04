@@ -1,0 +1,38 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="auth-shell">
+  <section class="panel auth-panel">
+    <h1>Login</h1>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+    <form action="/login" method="POST" class="form">
+      <label>
+        Username
+        <input name="username" value="admin" required>
+      </label>
+      <label class="password-field">
+        Password
+        <input id="password" name="password" type="password" value="admin123" required>
+        <span class="checkbox-row">
+          <input id="show-password" type="checkbox">
+          <span>Show password</span>
+        </span>
+      </label>
+      <button type="submit">Login</button>
+    </form>
+  </section>
+</main>
+
+<script>
+  const passwordInput = document.getElementById('password');
+  const showPasswordInput = document.getElementById('show-password');
+
+  if (passwordInput && showPasswordInput) {
+    showPasswordInput.addEventListener('change', function () {
+      passwordInput.type = this.checked ? 'text' : 'password';
+    });
+  }
+</script>
+
+<%- include('../partials/footer') %>

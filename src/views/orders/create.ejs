@@ -1,0 +1,99 @@
+<%- include('../partials/header', { title, isAuthenticated }) %>
+
+<main class="shell">
+  <h1>Create Order</h1>
+  <form action="/orders" method="POST" class="form panel">
+    <label>
+      Customer
+      <select name="customerId" required>
+        <% customers.forEach((customer) => { %>
+          <option value="<%= customer.id %>"><%= customer.name %> (<%= customer.customerType %>)</option>
+        <% }) %>
+      </select>
+    </label>
+
+    <div id="order-items" class="form">
+      <div class="item-grid order-item">
+        <label>
+          Product
+          <select name="productId">
+            <option value="">Select product</option>
+            <% products.forEach((product) => { %>
+              <option value="<%= product.id %>"><%= product.name %> - Rp <%= product.price.toLocaleString('id-ID') %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          Quantity
+          <input name="quantity" type="number" min="1" value="1" required>
+        </label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="add-product" class="button button-secondary">Add Product</button>
+      <button type="submit">Create Order</button>
+      <a href="/orders">Cancel</a>
+    </div>
+  </form>
+</main>
+
+<template id="order-item-template">
+  <div class="item-grid order-item">
+    <label>
+      Product
+      <select name="productId">
+        <option value="">Select product</option>
+        <% products.forEach((product) => { %>
+          <option value="<%= product.id %>"><%= product.name %> - Rp <%= product.price.toLocaleString('id-ID') %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>
+      Quantity
+      <input name="quantity" type="number" min="1" value="1" required>
+    </label>
+    <button type="button" class="remove-item button button-secondary">Remove</button>
+  </div>
+</template>
+
+<script>
+  const orderItems = document.getElementById('order-items');
+  const addProductButton = document.getElementById('add-product');
+  const orderItemTemplate = document.getElementById('order-item-template');
+
+  function syncRemoveButtons() {
+    const removeButtons = orderItems.querySelectorAll('.remove-item');
+
+    removeButtons.forEach((button) => {
+      button.hidden = orderItems.children.length === 1;
+    });
+  }
+
+  if (orderItems && addProductButton && orderItemTemplate) {
+    addProductButton.addEventListener('click', () => {
+      const fragment = orderItemTemplate.content.cloneNode(true);
+      orderItems.appendChild(fragment);
+      syncRemoveButtons();
+    });
+
+    orderItems.addEventListener('click', (event) => {
+      const target = event.target;
+
+      if (!(target instanceof HTMLElement) || !target.classList.contains('remove-item')) {
+        return;
+      }
+
+      const item = target.closest('.order-item');
+
+      if (item && orderItems.children.length > 1) {
+        item.remove();
+        syncRemoveButtons();
+      }
+    });
+
+    syncRemoveButtons();
+  }
+</script>
+
+<%- include('../partials/footer') %>
