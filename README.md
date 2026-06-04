@@ -24,13 +24,13 @@ copy env_sample .env
 pnpm dev
 ```
 
-The server runs at `http://localhost:3000` by default.
+The server runs at `http://localhost:6011` by default.
 
 ## Environment Variables
 
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=6011
 ```
 
 ## Default Login
@@ -52,3 +52,12 @@ PORT=3000
 - `pnpm dev` - run in development mode with file watching
 - `pnpm build` - compile TypeScript to `dist`
 - `pnpm start` - run the compiled app
+
+## Docker
+
+```bash
+docker build -t hashmicro-backend .
+docker run -p 6011:6011 --env PORT=6011 hashmicro-backend
+```
+
+For Dokploy, use the included `Dockerfile` and set the app port to `6011`.
