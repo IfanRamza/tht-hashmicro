@@ -3,6 +3,9 @@
 <main class="shell">
   <h1>Create Order</h1>
   <form action="/orders" method="POST" class="form panel">
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
     <label>
       Customer
       <select name="customerId" required>

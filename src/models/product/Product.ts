@@ -33,4 +33,16 @@ export class Product extends BaseModel {
     return this.stock >= quantity;
   }
 
+  decreaseStock(quantity: number): void {
+    if (quantity <= 0) {
+      throw new Error("Quantity must be greater than zero");
+    }
+
+    if (!this.isAvailable(quantity)) {
+      throw new Error("Product stock is not enough");
+    }
+
+    this.stock -= quantity;
+    this.touch();
+  }
 }

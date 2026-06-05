@@ -13,6 +13,11 @@ type ItemInput = {
   quantity: string;
 };
 
+type ResolvedOrderItem = {
+  product: Product;
+  quantity: number;
+};
+
 type CustomerRepositoryPort = {
   findAll(): Customer[];
   findById(id: ModelId): Customer | undefined;
@@ -70,6 +75,24 @@ function findOrderOrFail(repository: OrderRepositoryPort, id: string): Order {
   return order;
 }
 
+function renderCreateOrderForm(
+  res: Response,
+  dependencies: Pick<
+    OrderControllerDependencies,
+    "customerRepository" | "productRepository"
+  >,
+  error: string | null,
+): void {
+  res.status(error ? 400 : 200).render("orders/create", {
+    title: "Create Order",
+    customers: dependencies.customerRepository.findAll(),
+    products: dependencies.productRepository
+      .findAll()
+      .filter((product) => product.stock > 0),
+    error,
+  });
+}
+
 export function createOrderController(dependencies: OrderControllerDependencies) {
   const {
     customerRepository,
@@ -88,11 +111,7 @@ export function createOrderController(dependencies: OrderControllerDependencies)
     },
 
     create(_req: Request, res: Response): void {
-      res.render("orders/create", {
-        title: "Create Order",
-        customers: customerRepository.findAll(),
-        products: productRepository.findAll(),
-      });
+      renderCreateOrderForm(res, dependencies, null);
     },
 
     store(req: Request, res: Response): void {
@@ -100,24 +119,44 @@ export function createOrderController(dependencies: OrderControllerDependencies)
       const customer = customerRepository.findById(String(body.customerId));
 
       if (!customer) {
-        throw new BadRequestError("Customer is required");
+        renderCreateOrderForm(res, dependencies, "Customer is required");
+        return;
       }
 
-      const items: OrderItem[] = [];
+      const resolvedItems: ResolvedOrderItem[] = [];
 
       for (const input of normalizeItems(body)) {
         const product = productRepository.findById(input.productId);
         const quantity = Number(input.quantity);
 
-        if (product && quantity > 0) {
-          items.push(new OrderItem(createId(), product, quantity));
+        if (!product || quantity <= 0) {
+          continue;
         }
+
+        if (!product.isAvailable(quantity)) {
+          renderCreateOrderForm(
+            res,
+            dependencies,
+            `${product.name} only has ${product.stock} item(s) in stock`,
+          );
+          return;
+        }
+
+        resolvedItems.push({ product, quantity });
       }
 
-      if (items.length === 0) {
-        throw new BadRequestError("At least one valid order item is required");
+      if (resolvedItems.length === 0) {
+        renderCreateOrderForm(
+          res,
+          dependencies,
+          "At least one valid order item is required",
+        );
+        return;
       }
 
+      const items = resolvedItems.map(
+        ({ product, quantity }) => new OrderItem(createId(), product, quantity),
+      );
       const order = new Order(
         createId(),
         createOrderCode(),
@@ -127,6 +166,10 @@ export function createOrderController(dependencies: OrderControllerDependencies)
       );
 
       orderRepository.create(order);
+      for (const { product, quantity } of resolvedItems) {
+        product.decreaseStock(quantity);
+      }
+
       res.redirect(`/orders/${order.id}`);
     },
 
