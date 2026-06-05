@@ -1,22 +1,17 @@
 import type { Request, Response } from "express";
 import { logger } from "../config/logger";
 import { clearAuthCookie, setAuthCookie } from "../middlewares/auth";
-import type { User } from "../models";
-import { userRepository } from "../repositories/UserRepository";
-
-type UserRepositoryPort = {
-  findByUsername(username: string): User | undefined;
-};
+import { authService, type AuthService } from "../services/AuthService";
 
 type AuthControllerDependencies = {
-  userRepository: UserRepositoryPort;
+  authService: AuthService;
   logger: Pick<typeof logger, "info" | "warn">;
   setAuthCookie: typeof setAuthCookie;
   clearAuthCookie: typeof clearAuthCookie;
 };
 
 export function createAuthController(dependencies: AuthControllerDependencies) {
-  const { userRepository, logger, setAuthCookie, clearAuthCookie } = dependencies;
+  const { authService, logger, setAuthCookie, clearAuthCookie } = dependencies;
 
   return {
     showLogin(_req: Request, res: Response): void {
@@ -28,7 +23,7 @@ export function createAuthController(dependencies: AuthControllerDependencies) {
         username?: string;
         password?: string;
       };
-      const user = username ? userRepository.findByUsername(username) : undefined;
+      const user = authService.authenticate(username, password);
 
       if (!user || user.getPasswordHash() !== password) {
         logger.warn({ username }, "login failed");
@@ -52,7 +47,7 @@ export function createAuthController(dependencies: AuthControllerDependencies) {
 }
 
 export const authController = createAuthController({
-  userRepository,
+  authService,
   logger,
   setAuthCookie,
   clearAuthCookie,

@@ -1,54 +1,18 @@
 import type { Request, Response } from "express";
-
-type MatchMode = "sensitive" | "insensitive";
-
-type CharacterMatchResult = {
-  matchedCharacters: string[];
-  totalCharacters: number;
-  matchedCount: number;
-  percentage: number;
-};
-
-type CharacterMatchCalculator = (
-  input1: string,
-  input2: string,
-  mode: MatchMode,
-) => CharacterMatchResult;
-
-function calculateCharacterMatch(
-  input1: string,
-  input2: string,
-  mode: MatchMode,
-): CharacterMatchResult {
-  const source = mode === "insensitive" ? input1.toLowerCase() : input1;
-  const target = mode === "insensitive" ? input2.toLowerCase() : input2;
-  const matchedCharacters: string[] = [];
-
-  for (const character of source) {
-    if (target.includes(character)) {
-      matchedCharacters.push(character);
-    }
-  }
-
-  const percentage =
-    source.length === 0 ? 0 : (matchedCharacters.length / source.length) * 100;
-
-  return {
-    matchedCharacters,
-    totalCharacters: source.length,
-    matchedCount: matchedCharacters.length,
-    percentage,
-  };
-}
+import {
+  characterCheckerService,
+  type CharacterCheckerService,
+  type MatchMode,
+} from "../services/CharacterCheckerService";
 
 type CharacterCheckerControllerDependencies = {
-  calculateCharacterMatch: CharacterMatchCalculator;
+  characterCheckerService: CharacterCheckerService;
 };
 
 export function createCharacterCheckerController(
   dependencies: CharacterCheckerControllerDependencies,
 ) {
-  const { calculateCharacterMatch } = dependencies;
+  const { characterCheckerService } = dependencies;
 
   return {
     index(_req: Request, res: Response): void {
@@ -72,7 +36,7 @@ export function createCharacterCheckerController(
 
       res.render("character-checker/index", {
         title: "Character Checker",
-        result: calculateCharacterMatch(input1, input2, mode),
+        result: characterCheckerService.calculateMatch(input1, input2, mode),
         form: { input1, input2, mode },
       });
     },
@@ -80,5 +44,5 @@ export function createCharacterCheckerController(
 }
 
 export const characterCheckerController = createCharacterCheckerController({
-  calculateCharacterMatch,
+  characterCheckerService,
 });

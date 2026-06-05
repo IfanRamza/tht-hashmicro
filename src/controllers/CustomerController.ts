@@ -1,43 +1,25 @@
 import type { Request, Response } from "express";
-import { NotFoundError } from "../errors";
+import type { CustomerType } from "../models";
 import {
-  Customer,
-  type ModelId,
-  type CustomerType,
-  CUSTOMER_TYPE_DISCOUNT_RATES,
-} from "../models";
-import { customerRepository } from "../repositories/CustomerRepository";
-import { createUuidV7 } from "../utils/uuid";
-
-const customerTypes: CustomerType[] = ["regular", "member", "corporate"];
-
-type CustomerRepositoryPort = {
-  findAll(): Customer[];
-  findById(id: ModelId): Customer | undefined;
-  create(customer: Customer): Customer;
-  update(
-    id: ModelId,
-    updater: (customer: Customer) => void,
-  ): Customer | undefined;
-  delete(id: ModelId): boolean;
-};
+  customerService,
+  type CustomerService,
+} from "../services/CustomerService";
 
 type CustomerControllerDependencies = {
-  customerRepository: CustomerRepositoryPort;
-  createId: typeof createUuidV7;
+  customerService: CustomerService;
 };
 
 export function createCustomerController(
   dependencies: CustomerControllerDependencies,
 ) {
-  const { customerRepository, createId } = dependencies;
+  const { customerService } = dependencies;
 
   return {
     index(_req: Request, res: Response): void {
       res.render("customers/index", {
         title: "Customers",
-        customers: customerRepository.findAll(),
-        discountRates: CUSTOMER_TYPE_DISCOUNT_RATES,
+        customers: customerService.listCustomers(),
+        discountRates: customerService.getDiscountRates(),
       });
     },
 
@@ -45,8 +27,8 @@ export function createCustomerController(
       res.render("customers/form", {
         title: "Create Customer",
         customer: null,
-        customerTypes,
-        discountRates: CUSTOMER_TYPE_DISCOUNT_RATES,
+        customerTypes: customerService.getCustomerTypes(),
+        discountRates: customerService.getDiscountRates(),
         action: "/customers",
       });
     },
@@ -55,32 +37,25 @@ export function createCustomerController(
       const { name, email, phone, customerType, address } =
         req.body as Record<string, string>;
 
-      customerRepository.create(
-        new Customer(
-          createId(),
-          name,
-          email,
-          phone,
-          customerType as CustomerType,
-          address,
-        ),
-      );
+      customerService.createCustomer({
+        name,
+        email,
+        phone,
+        customerType: customerType as CustomerType,
+        address,
+      });
 
       res.redirect("/customers");
     },
 
     edit(req: Request, res: Response): void {
-      const customer = customerRepository.findById(String(req.params.id));
-
-      if (!customer) {
-        throw new NotFoundError("Customer not found");
-      }
+      const customer = customerService.getCustomer(String(req.params.id));
 
       res.render("customers/form", {
         title: "Edit Customer",
         customer,
-        customerTypes,
-        discountRates: CUSTOMER_TYPE_DISCOUNT_RATES,
+        customerTypes: customerService.getCustomerTypes(),
+        discountRates: customerService.getDiscountRates(),
         action: `/customers/${customer.id}/update`,
       });
     },
@@ -89,25 +64,24 @@ export function createCustomerController(
       const { name, email, phone, customerType, address } =
         req.body as Record<string, string>;
 
-      customerRepository.update(String(req.params.id), (customer) => {
-        customer.name = name.trim();
-        customer.email = email.trim().toLowerCase();
-        customer.phone = phone.trim();
-        customer.customerType = customerType as CustomerType;
-        customer.address = address.trim();
+      customerService.updateCustomer(String(req.params.id), {
+        name,
+        email,
+        phone,
+        customerType: customerType as CustomerType,
+        address,
       });
 
       res.redirect("/customers");
     },
 
     destroy(req: Request, res: Response): void {
-      customerRepository.delete(String(req.params.id));
+      customerService.deleteCustomer(String(req.params.id));
       res.redirect("/customers");
     },
   };
 }
 
 export const customerController = createCustomerController({
-  customerRepository,
-  createId: createUuidV7,
+  customerService,
 });

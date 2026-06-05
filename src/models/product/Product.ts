@@ -45,4 +45,13 @@ export class Product extends BaseModel {
     this.stock -= quantity;
     this.touch();
   }
+
+  increaseStock(quantity: number): void {
+    if (quantity <= 0) {
+      throw new Error("Quantity must be greater than zero");
+    }
+
+    this.stock += quantity;
+    this.touch();
+  }
 }
