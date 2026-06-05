@@ -19,11 +19,6 @@ export class Order extends Transaction {
     this.items = items;
   }
 
-  addItem(item: OrderItem): void {
-    this.items.push(item);
-    this.touch();
-  }
-
   getSubtotal(): number {
     return this.items.reduce((total, item) => total + item.getSubtotal(), 0);
   }

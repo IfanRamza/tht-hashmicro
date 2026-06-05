@@ -18,14 +18,22 @@
     <tbody>
       <% orders.forEach((order) => { %>
         <tr>
-          <td><a href="/orders/<%= order.id %>"><%= order.code %></a></td>
+          <td><%= order.code %></td>
           <td><%= order.customer.name %></td>
           <td><%= order.status %></td>
           <td>Rp <%= order.getGrandTotal().toLocaleString('id-ID') %></td>
           <td class="actions">
-            <form action="/orders/<%= order.id %>/delete" method="POST">
-              <button type="submit" class="button button-danger">Delete</button>
-            </form>
+            <a class="button button-secondary" href="/orders/<%= order.id %>">Show</a>
+            <% if (order.status === 'confirmed') { %>
+              <form action="/orders/<%= order.id %>/mark-as-paid" method="POST">
+                <button type="submit" class="button button-success">Mark as Paid</button>
+              </form>
+            <% } %>
+            <% if (order.status !== 'paid' && order.status !== 'cancelled') { %>
+              <form action="/orders/<%= order.id %>/cancel" method="POST">
+                <button type="submit" class="button button-danger">Cancel</button>
+              </form>
+            <% } %>
           </td>
         </tr>
       <% }) %>

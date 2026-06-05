@@ -19,20 +19,4 @@ export abstract class Person extends BaseModel {
     this.phone = phone.trim();
   }
 
-  getDisplayName(): string {
-    return this.name;
-  }
-
-  static getDisplayName(person: Pick<Person, "name" | "email">): string {
-    return person.name.trim() || person.email.trim().toLowerCase();
-  }
-
-  updateContactInfo(email: string, phone: string): void {
-    validateRequired("email", email);
-    validateRequired("phone", phone);
-
-    this.email = email.trim().toLowerCase();
-    this.phone = phone.trim();
-    this.touch();
-  }
 }

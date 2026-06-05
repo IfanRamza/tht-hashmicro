@@ -23,8 +23,4 @@ export class OrderItem extends BaseModel {
   getSubtotal(): number {
     return this.product.price * this.quantity;
   }
-
-  getTax(): number {
-    return this.product.calculateTax() * this.quantity;
-  }
 }

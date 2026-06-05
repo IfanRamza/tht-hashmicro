@@ -18,15 +18,6 @@ export abstract class Transaction extends BaseModel {
     this.transactionDate = transactionDate;
   }
 
-  confirm(): void {
-    if (this.status !== "draft") {
-      throw new Error("Only draft transactions can be confirmed");
-    }
-
-    this.status = "confirmed";
-    this.touch();
-  }
-
   markAsPaid(): void {
     if (this.status !== "confirmed") {
       throw new Error("Only confirmed transactions can be marked as paid");

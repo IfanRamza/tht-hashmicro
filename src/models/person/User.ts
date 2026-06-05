@@ -24,17 +24,7 @@ export class User extends Person {
     this.role = role;
   }
 
-  isAdmin(): boolean {
-    return this.role === "admin";
-  }
-
   getPasswordHash(): string {
     return this.passwordHash;
-  }
-
-  updatePasswordHash(passwordHash: string): void {
-    validateRequired("passwordHash", passwordHash);
-    this.passwordHash = passwordHash;
-    this.touch();
   }
 }

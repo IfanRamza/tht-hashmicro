@@ -33,20 +33,4 @@ export class Product extends BaseModel {
     return this.stock >= quantity;
   }
 
-  isLowStock(threshold: number = 5): boolean {
-    return this.stock > 0 && this.stock <= threshold;
-  }
-
-  updateStock(quantity: number): void {
-    if (quantity < 0 && Math.abs(quantity) > this.stock) {
-      throw new Error("Cannot reduce stock below zero");
-    }
-
-    this.stock += quantity;
-    this.touch();
-  }
-
-  calculateTax(taxRate: number = 0.11): number {
-    return this.price * taxRate;
-  }
 }

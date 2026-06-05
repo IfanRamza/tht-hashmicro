@@ -30,10 +30,4 @@ export class Customer extends Person {
   getDiscountRate(): number {
     return CUSTOMER_TYPE_DISCOUNT_RATES[this.customerType];
   }
-
-  updateAddress(address: string): void {
-    validateRequired("address", address);
-    this.address = address.trim();
-    this.touch();
-  }
 }

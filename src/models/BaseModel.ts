@@ -12,8 +12,4 @@ export abstract class BaseModel {
   touch(): void {
     this.updatedAt = new Date();
   }
-
-  isNew(): boolean {
-    return this.createdAt.getTime() === this.updatedAt.getTime();
-  }
 }
